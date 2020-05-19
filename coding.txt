@@ -1,0 +1,51 @@
+<?php
+class Logctrl extends CI_Controller
+{
+function __construct() 
+{
+parent::__construct();
+$this->load->model('Logmdl');
+$this->load->library('form_validation');
+$this->load->helper('url');
+//$this->load->library('session');
+}
+public function index()
+{
+$this->form_validation->set_rules('email', 'email', 'required');
+$this->form_validation->set_rules('password', 'password', 'required');
+if($this->form_validation->run() == FALSE)
+{
+$this->load->view('adlogin');
+} 
+else 
+{
+$name = $this->input->post('email');
+$pword = $this->input->post('password');
+$q=$this->Logmdl->login($name,$pword);
+
+if(!empty($q))
+{
+    $sess_data = array(
+                         'userid' => $q->admin_id,
+                         'username' => $q->admin_fname,
+                         'email' => $q->admin_email,
+                         'profile_img'=>$q->admin_image,
+                         
+                    );
+                      $this->session->set_userdata($sess_data);
+redirect('Adctrl/home');
+}
+else
+{
+// $this->load->view('adlogin'); 
+redirect('Logctrl/index');
+}
+}
+}
+public function logout() {
+
+    $this->session->unset_userdata('username');
+    $this->load->view('adlogin');
+    }
+}
+?>
